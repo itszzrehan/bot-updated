@@ -1,0 +1,30 @@
+name: Deploy Bot to Local Server
+
+on:
+  push:
+    branches:
+      - main # Change this if your default branch is 'master'
+
+jobs:
+  deploy:
+    runs-on: self-hosted # Tells GitHub to run this on your Ubuntu server agent
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: |
+          docker build -t whatsapp-bot:latest .
+
+      - name: Stop and Remove Old Container
+        run: |
+          docker stop whatsapp-bot-container || true
+          docker rm whatsapp-bot-container || true
+
+      - name: Run New Container
+        run: |
+          docker run -d \
+            --name whatsapp-bot-container \
+            --restart always \
+            whatsapp-bot:latest

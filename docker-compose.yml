@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  # 1. Database Service
+  mongodb:
+    image: mongo:latest
+    container_name: bot-mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secretpassword # Change this to match your .env
+    volumes:
+      - mongo_data:/data/db # This makes sure your data isn't deleted when the container restarts
+    ports:
+      - "27017:27017" # Exposes mongo to your host if you want to connect via MongoDB Compass
+
+  # 2. Your Bot Service
+  bot:
+    build: .
+    container_name: whatsapp-bot-container
+    restart: always
+    depends_on:
+      - mongodb # Ensures MongoDB starts before the bot tries to connect
+    env_file:
+      - .env # Automatically injects your local .env file into the container
+    volumes:
+      - ./sessions:/bot/sessions # Keeps your WhatsApp sessions saved locally so you don't re-scan QR codes
+
+volumes:
+  mongo_data:
