@@ -16,17 +16,8 @@ import config from "./config.js";
 import { handleMessage } from "./messageHandler.js";
 import { getSettings } from "./lib/settings.js";
 import { handleBootCommand } from "./lib/bootHandler.js";
-
-import { getAutoReplies } from "./lib/Stores/autoReplyStore.js";
-import { getAutoReacts } from "./lib/Stores/autoReactStore.js";
 import { saveMessage, getMessageById } from "./lib/Stores/messageStore.js";
-
 import { handleDeletedMessage } from "./lib/helpers/antidelete.js";
-import { saveStatus } from "./lib/Stores/statusStore.js";
-import {
-  getGroupAutoReact,
-  getRandomEmoji,
-} from "./lib/Stores/groupAutoReactStore.js";
 
 // =====================================================
 // FILE PATH
@@ -58,45 +49,6 @@ async function loadSettings() {
 // HELPERS
 // =====================================================
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// =====================================================
-// EMOJI POOL
-// =====================================================
-const STATUS_REACTS = [
-  "❤️",
-  "💙",
-  "💚",
-  "💛",
-  "💜",
-  "🧡",
-  "🩷",
-  "🩵",
-  "🤍",
-  "🤎",
-  "💖",
-  "💘",
-  "💝",
-  "💗",
-  "💓",
-  "💞",
-  "💟",
-  "😍",
-  "🥰",
-  "😘",
-  "🔥",
-  "💯",
-  "✨",
-  "⚡",
-  "🌟",
-  "🫶",
-  "🙌",
-  "👏",
-  "😎",
-  "🤯",
-];
-
-const getRandomReact = () =>
-  STATUS_REACTS[Math.floor(Math.random() * STATUS_REACTS.length)];
 
 // =====================================================
 // WA CONNECTOR
@@ -215,28 +167,6 @@ export async function connectToWA() {
   conn.ev.on("creds.update", saveCreds);
 
   // =====================================================
-  // CALL HANDLER
-  // =====================================================
-  conn.ev.on("call", async (callEvents) => {
-    const settings = await loadSettings();
-    if (!settings.autoRejectCalls) return;
-
-    for (const call of callEvents) {
-      if (call.status !== "offer") continue;
-
-      try {
-        await conn.sendMessage(call.from, {
-          text: "⚡ STREAM LINE MD (V2) ⚡\n\nCalls aren’t supported 😿\nSend a message instead 💬",
-        });
-
-        await conn.rejectCall(call.id, call.from);
-      } catch (err) {
-        console.error("❌ [CALL HANDLER ERROR]", err);
-      }
-    }
-  });
-
-  // =====================================================
   // MESSAGE HANDLER
   // =====================================================
   const processedMessages = new Set();
@@ -274,21 +204,6 @@ export async function connectToWA() {
         getMessageById,
         jidNormalizedUser,
       });
-    }
-
-    // STATUS
-    if (jid === "status@broadcast") {
-      await saveStatus(mek);
-
-      if (settings.autoReadStatus) await conn.readMessages([mek.key]);
-
-      if (settings.autoReactStatus) {
-        await delay(settings.reactDelayMs || 3000);
-        await conn.sendMessage(sender, {
-          react: { text: getRandomReact(), key: mek.key },
-        });
-      }
-      return;
     }
 
     // TEXT EXTRACT
@@ -341,38 +256,6 @@ export async function connectToWA() {
 
     const handled = await handleMessage(conn, mek, config.OWNER_NUMBERS);
     if (handled || mek.key.fromMe) return;
-
-    // AUTO REPLIES
-    if (!jid.endsWith("@g.us")) {
-      const autoReplies = await getAutoReplies();
-      const pushname = mek.pushName || "Friend";
-
-      const match = autoReplies.find((r) =>
-        text.toLowerCase().startsWith(r.trigger.toLowerCase()),
-      );
-
-      if (match) {
-        await conn.sendPresenceUpdate("composing", jid);
-        await delay(1000);
-
-        const replyText = match.reply.replace(/\$\{pushname\}/g, pushname);
-
-        await conn.sendMessage(jid, { text: replyText });
-        await conn.sendPresenceUpdate("paused", jid);
-      }
-    }
-
-    // AUTO REACT
-    const autoReacts = await getAutoReacts();
-    const reactMatch = autoReacts.find((r) =>
-      text.toLowerCase().startsWith(r.trigger.toLowerCase()),
-    );
-
-    if (reactMatch) {
-      await conn.sendMessage(jid, {
-        react: { text: reactMatch.emoji, key: mek.key },
-      });
-    }
   });
 
   return conn;

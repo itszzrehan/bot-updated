@@ -6,21 +6,16 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon --watch . --ext js,mjs,cjs,json --ignore node_modules index.js",
-    "dev2": "dotenv -e .env.dev2 -- nodemon --watch . --ext js,mjs,cjs,json --ignore node_modules index.js",
     "start": "pm2 start index.js --deep-monitoring --attach --name StreamLineMD-V2",
-    "start2": "dotenv -e .env.dev2 -- pm2 start index.js --deep-monitoring --attach --name StreamLineMD-V2-2",
     "stop": "pm2 stop StreamLineMD-V2",
-    "stop2": "pm2 stop StreamLineMD-V2-2",
-    "restart": "pm2 restart StreamLineMD-V2",
-    "restart2": "pm2 restart StreamLineMD-V2-2"
+    "restart": "pm2 restart StreamLineMD-V2"
   },
   "keywords": [],
   "author": "Future Innovations LK",
   "license": "ISC",
-  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a",
+  "packageManager": "pnpm@11.10.0",
   "dependencies": {
     "@dark-yasiya/scrap": "^1.0.1",
-    "@google/genai": "^1.43.0",
     "@whiskeysockets/baileys": "7.0.0-rc.9",
     "axios": "^1.13.2",
     "btch-downloader": "^6.0.23",

@@ -10,6 +10,7 @@ const config = {
 
   MONGODB_URI: process.env.MONGODB_URI?.trim(),
   DB_NAME: process.env.DB_NAME?.trim(),
+  OPENROUTER_API_KEY:process.env.OPENROUTER_API_KEY?.trim(),
 };
 
 // 🔥 DEBUG LOG (REMOVE AFTER CONFIRMING)

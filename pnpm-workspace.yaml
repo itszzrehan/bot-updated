@@ -1,6 +1,5 @@
-onlyBuiltDependencies:
-  - '@whiskeysockets/baileys'
-  - btch-downloader
-  - esbuild
-  - protobufjs
-  - sharp
+allowBuilds:
+  '@whiskeysockets/baileys': true
+  btch-downloader: true
+  esbuild: true
+  protobufjs: true
