@@ -25,20 +25,18 @@ function getMessageType(messageObj) {
   return allowed.find((k) => k in messageObj) || null;
 }
 
-
 /* =========================
    Command
 ========================= */
 
 export default {
-  pattern: "ommy",
+  pattern: "hmm",
   alias: ["viewonce"],
   category: "Tools",
 
   async function(conn, mek, m, ctx) {
-
     try {
-      console.log("cmd...")
+      console.log("cmd...");
       const msg = await sms(conn, mek);
       const quoted = msg?.quoted;
 
@@ -47,7 +45,8 @@ export default {
       }
 
       // 2. Identify the bot's personal JID
-      const botJidRaw = conn?.user?.id || conn?.user?.jid || conn?.user?.user?.id;
+      const botJidRaw =
+        conn?.user?.id || conn?.user?.jid || conn?.user?.user?.id;
       const botJid = botJidRaw ? jidNormalizedUser(botJidRaw) : null;
 
       if (!botJid) {
@@ -63,47 +62,46 @@ export default {
 
       if (!buffer || !Buffer.isBuffer(buffer) || buffer.length === 0) {
         // Send the error message directly to the bot's DM instead of the group
-        return await conn.sendMessage(botJid, { text: "❌ The media could not be extracted from the shadows." });
+        return await conn.sendMessage(botJid, {
+          text: "❌ The media could not be extracted from the shadows.",
+        });
       }
 
       // 4. Send extracted media exclusively to the bot's DM
       if (type === "imageMessage" || type === "viewOnceMessage") {
-        await conn.sendMessage(
-          targetJid,
-          { image: buffer }
-        );
+        await conn.sendMessage(targetJid, { image: buffer });
       } else if (type === "videoMessage") {
-        await conn.sendMessage(
-          targetJid,
-          { video: buffer}
-        );
+        await conn.sendMessage(targetJid, { video: buffer });
       } else if (type === "audioMessage") {
-        await conn.sendMessage(
-          targetJid,
-          { audio: buffer, mimetype: "audio/mpeg" }
-        );
+        await conn.sendMessage(targetJid, {
+          audio: buffer,
+          mimetype: "audio/mpeg",
+        });
       } else if (type === "stickerMessage") {
         await conn.sendMessage(targetJid, { sticker: buffer });
       } else if (type === "documentMessage") {
-        await conn.sendMessage(
-          targetJid,
-          {
-            document: buffer,
-            mimetype: quoted?.msg?.mimetype || quoted?.documentMessage?.mimetype,
-            fileName: quoted?.msg?.fileName || quoted?.documentMessage?.fileName || "file",
-          }
-        );
+        await conn.sendMessage(targetJid, {
+          document: buffer,
+          mimetype: quoted?.msg?.mimetype || quoted?.documentMessage?.mimetype,
+          fileName:
+            quoted?.msg?.fileName ||
+            quoted?.documentMessage?.fileName ||
+            "file",
+        });
       } else {
-        return await conn.sendMessage(botJid, { text: "⚠️ Media type lost in the abyss…" });
+        return await conn.sendMessage(botJid, {
+          text: "⚠️ Media type lost in the abyss…",
+        });
       }
-
     } catch (e) {
       console.log(e);
       // Log errors quietly to the bot's own chat rather than shouting in the group
       try {
         const botJidRaw = conn?.user?.id || conn?.user?.jid;
         if (botJidRaw) {
-          await conn.sendMessage(jidNormalizedUser(botJidRaw), { text: "❌ Failed to extract media from the shadows…" });
+          await conn.sendMessage(jidNormalizedUser(botJidRaw), {
+            text: "❌ Failed to extract media from the shadows…",
+          });
         }
       } catch {}
     }

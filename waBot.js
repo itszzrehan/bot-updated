@@ -239,21 +239,6 @@ export async function connectToWA() {
 
     const isOwner = config.OWNER_NUMBERS.includes(senderNumber);
 
-    if (jid.endsWith("@g.us")) {
-      if (isOwner && !isCmd) {
-        await conn.sendMessage(jid, {
-          react: { text: "👑", key: mek.key },
-        });
-      }
-      const group = await getGroupAutoReact(jid);
-      if (group?.enabled && group?.emojis?.length) {
-        const emoji = getRandomEmoji(group.emojis);
-        await conn.sendMessage(jid, {
-          react: { text: emoji, key: mek.key },
-        });
-      }
-    }
-
     const handled = await handleMessage(conn, mek, config.OWNER_NUMBERS);
     if (handled || mek.key.fromMe) return;
   });
